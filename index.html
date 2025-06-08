@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta version="1.1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>摄影风格调色盘</title>
     <style>
@@ -471,45 +472,88 @@
                 flex-direction: column;
             }
             
-            .tab-content {
-                max-height: 80vh; /* 占据 80% 的视口高度 */
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch; /* 提升移动端滚动体验 */
+            .main-content {
+                padding: 60px 20px 20px;
+                height: 100vh;
+                /* display: flex;*/
+                /*align-items: flex-start; /* 改为顶部对齐 */
+                /*padding-top: 100px; /* 增加顶部间距，让照片显示更靠上 */
             }
 
-            .control-panel {
-                width: 100%;
-                height: 45vh;
-                padding-top: 0;
-                border-radius: 20px 20px 0 0; /* 圆角顶部 */
-            }
-            
-            .main-content {
-                padding: 80px 20px 20px;
+            /* 照片显示时调整位置到上方 */
+            .main-content:has(#imageContainer:not([style*="display: none"])) {
+                align-items: flex-start;
+                padding-top: 90px;
             }
 
             .preview-image {
-                max-width: 85vw; /* 增加显示区域 */
-                max-height: 45vh; /* 为控制面板留出更多空间 */
+                max-width: 85vw;
+                max-height: 45vh; /* 减小最大高度，为控制面板留出空间 */
+            }
+            
+            .control-panel {
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                width: calc(100% - 40px);
+                height: auto;
+                max-height: 60vh;
+                padding-top: 0;
+                border-radius: 20px;
+                z-index: 200;
+                transform: translateY(0);
+                transition: transform 0.3s ease;
+                /* 添加拖拽手柄样式 */
+            }
+            
+            /* 添加拖拽手柄 */
+            .control-panel::before {
+                content: '';
+                position: absolute;
+                top: 8px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 40px;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 2px;
+                cursor: grab;
+            }
+            
+            .control-panel.dragging::before {
+                cursor: grabbing;
+            }
+            
+            /* 收起状态 */
+            .control-panel.collapsed {
+                transform: translateY(calc(100% - 60px));
+            }
+            
+            .tab-content {
+                max-height: calc(55vh - 60px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
             
             .palette-wrapper {
-                width: 260px;
-                height: 260px;
+                width: 240px;
+                height: 240px;
             }
 
             .control-dot {
-                width: 24px;
-                height: 24px;
+                width: 20px;
+                height: 20px;
             }
             
             .control-dot::before {
-                top: -20px;
-                left: -20px;
-                right: -20px;
-                bottom: -20px;
+                top: -15px;
+                left: -15px;
+                right: -15px;
+                bottom: -15px;
             }
         }
+
 
         /* Hide file input */
         #fileInput {
@@ -751,6 +795,13 @@
             sharpness: 0
         };
 
+        let panelDragState = {
+            isDragging: false,
+            startY: 0,
+            startTransform: 0,
+            isCollapsed: false
+        };
+
         function toggleAdvanced() {
             const sliders = document.getElementById('advancedSliders');
             const btn = document.querySelector('.toggle-btn');
@@ -868,6 +919,220 @@
             controlDot.addEventListener('touchstart', handleTouchStart, { passive: false });
             document.addEventListener('touchmove', handleTouchMove, { passive: false });
             document.addEventListener('touchend', handleTouchEnd);
+
+            // 添加移动端面板拖拽功能
+            if (window.innerWidth <= 768) {
+                setupMobilePanelDrag();
+            }
+            
+            // 监听窗口大小变化
+            window.addEventListener('resize', () => {
+                if (window.innerWidth <= 768) {
+                    setupMobilePanelDrag();
+                } else {
+                    removeMobilePanelDrag();
+                }
+            });
+        }
+
+        // 添加新函数：
+        function setupMobilePanelDrag() {
+            const panel = document.getElementById('controlPanel');
+            if (!panel) return;
+            
+            // 添加拖拽手柄区域
+            const handleArea = document.createElement('div');
+            handleArea.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 30px;
+                cursor: grab;
+                z-index: 10;
+            `;
+            
+            if (!panel.querySelector('.drag-handle')) {
+                handleArea.className = 'drag-handle';
+                panel.appendChild(handleArea);
+            }
+            
+            // 触摸事件
+            handleArea.addEventListener('touchstart', handlePanelTouchStart, { passive: false });
+            document.addEventListener('touchmove', handlePanelTouchMove, { passive: false });
+            document.addEventListener('touchend', handlePanelTouchEnd);
+            
+            // 鼠标事件（用于调试）
+            handleArea.addEventListener('mousedown', handlePanelMouseStart);
+            document.addEventListener('mousemove', handlePanelMouseMove);
+            document.addEventListener('mouseup', handlePanelMouseEnd);
+            
+            // 点击收起/展开
+            handleArea.addEventListener('click', (e) => {
+                if (!panelDragState.isDragging) {
+                    togglePanelCollapse();
+                }
+            });
+        }
+
+        function removeMobilePanelDrag() {
+            const panel = document.getElementById('controlPanel');
+            const handleArea = panel?.querySelector('.drag-handle');
+            if (handleArea) {
+                handleArea.remove();
+            }
+        }
+
+        function handlePanelTouchStart(e) {
+            panelDragState.isDragging = true;
+            panelDragState.startY = e.touches[0].clientY;
+            panelDragState.startTransform = getCurrentTransform();
+            
+            const panel = document.getElementById('controlPanel');
+            panel.classList.add('dragging');
+            panel.style.transition = 'none';
+        }
+
+        function handlePanelTouchMove(e) {
+            if (!panelDragState.isDragging) return;
+            
+            e.preventDefault();
+            const currentY = e.touches[0].clientY;
+            const deltaY = currentY - panelDragState.startY;
+            const windowHeight = window.innerHeight;
+            const panel = document.getElementById('controlPanel');
+            const panelHeight = panel.offsetHeight;
+            
+            // 计算新的transform值，限制在合理范围内
+            const minTransform = -50; // 可以稍微拖出屏幕顶部
+            const maxTransform = windowHeight - 60; // 最多拖到只显示60px高度
+            const newTransform = Math.max(minTransform, Math.min(maxTransform, panelDragState.startTransform + deltaY));
+            
+            panel.style.transform = `translateY(${newTransform}px)`;
+        }
+
+        function handlePanelTouchEnd() {
+            if (!panelDragState.isDragging) return;
+            
+            const panel = document.getElementById('controlPanel');
+            const currentTransform = getCurrentTransform();
+            const panelHeight = panel.offsetHeight;
+            const windowHeight = window.innerHeight;
+            
+            // 计算面板底部距离屏幕底部的距离
+            const panelBottom = windowHeight - (panelHeight - currentTransform);
+            
+            // 只有拖到屏幕最底部（距离底部小于80px）才收起
+            if (panelBottom < 50) {
+                // 收起状态
+                panel.style.transform = 'translateY(calc(100% - 60px))';
+                panel.classList.add('collapsed');
+                panelDragState.isCollapsed = true;
+            } else {
+                // 任意位置停住，限制在合理范围内
+                const minTransform = -50; // 不能拖出屏幕顶部太多
+                const maxTransform = windowHeight - panelHeight - 50; // 距离底部至少80px
+                const finalTransform = Math.max(minTransform, Math.min(maxTransform, currentTransform));
+                
+                panel.style.transform = `translateY(${finalTransform}px)`;
+                panel.classList.remove('collapsed');
+                panelDragState.isCollapsed = false;
+            }
+            
+            panel.classList.remove('dragging');
+            panel.style.transition = 'transform 0.3s ease';
+            panelDragState.isDragging = false;
+        }
+
+        // 鼠标事件处理函数（与触摸事件类似）
+        function handlePanelMouseStart(e) {
+            panelDragState.isDragging = true;
+            panelDragState.startY = e.clientY;
+            panelDragState.startTransform = getCurrentTransform();
+            
+            const panel = document.getElementById('controlPanel');
+            panel.classList.add('dragging');
+            panel.style.transition = 'none';
+        }
+
+        function handlePanelMouseMove(e) {
+            if (!panelDragState.isDragging) return;
+            
+            const currentY = e.clientY;
+            const deltaY = currentY - panelDragState.startY;
+            const windowHeight = window.innerHeight;
+            const panel = document.getElementById('controlPanel');
+            const panelHeight = panel.offsetHeight;
+            
+            // 计算新的transform值，限制在合理范围内
+            const minTransform = -50; // 可以稍微拖出屏幕顶部
+            const maxTransform = windowHeight - 60; // 最多拖到只显示60px高度
+            const newTransform = Math.max(minTransform, Math.min(maxTransform, panelDragState.startTransform + deltaY));
+            
+            panel.style.transform = `translateY(${newTransform}px)`;
+        }
+
+        function handlePanelMouseEnd() {
+            if (!panelDragState.isDragging) return;
+            
+            const panel = document.getElementById('controlPanel');
+            const currentTransform = getCurrentTransform();
+            const panelHeight = panel.offsetHeight;
+            const windowHeight = window.innerHeight;
+            
+            // 计算面板底部距离屏幕底部的距离
+            const panelBottom = windowHeight - (panelHeight - currentTransform);
+            
+            // 只有拖到屏幕最底部（距离底部小于80px）才收起
+            if (panelBottom < 80) {
+                // 收起状态
+                panel.style.transform = 'translateY(calc(100% - 60px))';
+                panel.classList.add('collapsed');
+                panelDragState.isCollapsed = true;
+            } else {
+                // 任意位置停住，限制在合理范围内
+                const minTransform = -50; // 不能拖出屏幕顶部太多
+                const maxTransform = windowHeight - panelHeight - 80; // 距离底部至少80px
+                const finalTransform = Math.max(minTransform, Math.min(maxTransform, currentTransform));
+                
+                panel.style.transform = `translateY(${finalTransform}px)`;
+                panel.classList.remove('collapsed');
+                panelDragState.isCollapsed = false;
+            }
+            
+            panel.classList.remove('dragging');
+            panel.style.transition = 'transform 0.3s ease';
+            panelDragState.isDragging = false;
+        }
+
+        function getCurrentTransform() {
+            const panel = document.getElementById('controlPanel');
+            const transform = panel.style.transform;
+            const match = transform.match(/translateY\(([^)]+)\)/);
+            
+            if (match) {
+                const value = match[1];
+                if (value.includes('calc')) {
+                    // 简化处理，返回一个大概值
+                    return 200;
+                }
+                return parseFloat(value);
+            }
+            return 0;
+        }
+
+        function togglePanelCollapse() {
+            const panel = document.getElementById('controlPanel');
+            
+            if (panelDragState.isCollapsed) {
+                panel.style.transform = 'translateY(0)';
+                panel.classList.remove('collapsed');
+                panelDragState.isCollapsed = false;
+            } else {
+                panel.style.transform = 'translateY(calc(100% - 60px))';
+                panel.classList.add('collapsed');
+                panelDragState.isCollapsed = true;
+            }
         }
 
         // Handle image upload
