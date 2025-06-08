@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iPhone 16 摄影风格调色盘</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 30px;
+            background: rgba(28, 28, 30, 0.8);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: rgba(120, 120, 128, 0.2);
+            border: none;
+            color: #007AFF;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover {
+            background: rgba(120, 120, 128, 0.3);
+            transform: scale(1.05);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: #007AFF;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056D6;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 40px 40px;
+            background: radial-gradient(circle at 30% 20%, rgba(0, 122, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(175, 82, 222, 0.1) 0%, transparent 50%);
+        }
+
+        .image-container {
+            position: relative;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .preview-image {
+            max-width: 70vw;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 
+                        0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            transition: filter 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .image-info {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 12px;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .style-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .style-params {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Upload Area */
+        .upload-area {
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .upload-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 50%, #AF52DE 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            animation: pulse 3s infinite;
+        }
+
+        .upload-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .upload-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+        }
+
+        .upload-btn {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 122, 255, 0.4);
+        }
+
+        /* Control Panel */
+        .control-panel {
+            width: 380px;
+            background: rgba(28, 28, 30, 0.95);
+            backdrop-filter: blur(40px) saturate(180%);
+            border-left: 0.5px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding-top: 80px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 16px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #007AFF;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #007AFF;
+            border-radius: 1px;
+        }
+
+        .tab-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* Color Palette */
+        .palette-container {
+            text-align: center;
+        }
+
+        .palette-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .palette-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+        }
+
+        .palette-wrapper {
+            position: relative;
+            margin: 0 auto 30px;
+            width: 280px;
+            height: 280px;
+        }
+
+        .color-palette {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            cursor: crosshair;
+            position: relative;
+            overflow: hidden;
+            border: 0.5px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background: 
+                linear-gradient(to bottom, 
+                    rgba(255,255,255,1) 0%, 
+                    rgba(255,255,255,0) 50%,
+                    rgba(0,0,0,1) 100%
+                ),
+                linear-gradient(to right, 
+                    hsl(0, 0%, 50%) 0%,
+                    hsl(30, 70%, 60%) 25%,
+                    hsl(60, 80%, 70%) 50%,
+                    hsl(200, 70%, 60%) 75%,
+                    hsl(280, 80%, 60%) 100%
+                );
+        }
+
+        .grid-dot {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.2s ease;
+        }
+
+        .control-dot {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            border: 3px solid #007AFF;
+            cursor: move;
+            transform: translate(-50%, -50%);
+            transition: all 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4),
+                        0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-dot::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            border-radius: 50%;
+            background: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .control-dot {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .control-dot::before {
+                top: -20px;
+                left: -20px;
+                right: -20px;
+                bottom: -20px;
+            }
+        }
+
+        .control-dot:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.5),
+                        0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .palette-labels {
+            position: absolute;
+            top: 50%;
+            left: -50px;
+            right: -50px;
+            bottom: -20px;
+            pointer-events: none;
+        }
+
+        .label-left, .label-right {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            writing-mode: vertical-rl;
+        }
+
+        .label-left {
+            left: -40px;
+        }
+
+        .label-right {
+            right: -40px;
+        }
+
+        .label-top, .label-bottom {
+            position: absolute;
+            left: 0;
+            right: 0;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+        }
+
+        .label-top {
+            top: -25px;
+        }
+
+        .label-bottom {
+            bottom: -25px;
+        }
+
+        /* Parameters */
+        .parameters {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 30px;
+        }
+
+        .param-card {
+            background: rgba(120, 120, 128, 0.16);
+            border-radius: 12px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .param-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .param-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .param-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .param-value {
+            font-size: 22px;
+            font-weight: 600;
+            color: #007AFF;
+        }
+
+        /* Preset Styles */
+        .preset-styles {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .preset-style {
+            padding: 16px;
+            background: rgba(120, 120, 128, 0.16);
+            border-radius: 12px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .preset-style:hover {
+            background: rgba(120, 120, 128, 0.24);
+            transform: translateY(-1px);
+        }
+
+        .preset-style.active {
+            background: rgba(0, 122, 255, 0.2);
+            border-color: #007AFF;
+        }
+
+        .preset-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .preset-coords {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .control-panel {
+                width: 100%;
+                height: 55vh;
+                padding-top: 0;
+                border-radius: 20px 20px 0 0; /* 圆角顶部 */
+            }
+            
+            .main-content {
+                padding: 80px 15px 15px;
+            }
+
+            .preview-image {
+                max-width: 85vw; /* 增加显示区域 */
+                max-height: 45vh; /* 为控制面板留出更多空间 */
+            }
+            
+            .palette-wrapper {
+                width: 260px; /* 稍微增大调色盘 */
+                height: 260px;
+            }
+        }
+
+        /* Hide file input */
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div style="font-size: 24px;">📷</div>
+                <div class="header-title">摄影风格</div>
+            </div>
+            <div class="header-right">
+                <button class="btn" onclick="resetToStandard()" title="重置">
+                    ↻
+                </button>
+                <button class="btn btn-primary" onclick="downloadImage()" title="保存">
+                    ↓
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div id="uploadArea" class="upload-area">
+                <div class="upload-icon">📸</div>
+                <div class="upload-title">选择照片体验摄影风格</div>
+                <div class="upload-subtitle">上传照片后可使用正方形调色盘调整色调和饱和度</div>
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    选择照片
+                </button>
+            </div>
+            
+            <div id="imageContainer" class="image-container" style="display: none;">
+                <img id="previewImage" class="preview-image" alt="预览图片">
+                <div class="image-info">
+                    <div class="style-name" id="styleName">标准</div>
+                    <div class="style-params" id="styleParams">饱和度: 0 | 色调: 0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div id="controlPanel" class="control-panel" style="display: none;">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('palette')">
+                    🎨 调色盘
+                </button>
+                <button class="tab" onclick="switchTab('styles')">
+                    ⚡ 预设风格
+                </button>
+            </div>
+
+            <div class="tab-content">
+                <div id="paletteTab">
+                    <div class="palette-container">
+                        <div class="palette-title">正方形调色盘</div>
+                        <div class="palette-subtitle">上下拖动调整色调深浅 | 左右拖动调整饱和度</div>
+                        
+                        <div class="palette-wrapper">
+                            <div class="color-palette" id="colorPalette">
+                                <!-- 11x11 Grid dots will be generated by JavaScript -->
+                            </div>
+                            <div class="control-dot" id="controlDot"></div>
+                            
+                            <div class="palette-labels">
+                                <div class="label-left">明亮</div>
+                                <div class="label-right">暗淡</div>
+                                <div class="label-top">低饱和度</div>
+                                <div class="label-bottom">高饱和度</div>
+                            </div>
+                        </div>
+
+                        <div class="parameters">
+                            <div class="param-card">
+                                <div class="param-header">
+                                    <div class="param-icon">💧</div>
+                                    <div class="param-label">饱和度</div>
+                                </div>
+                                <div class="param-value" id="saturationValue">0%</div>
+                            </div>
+                            <div class="param-card">
+                                <div class="param-header">
+                                    <div class="param-icon">☀️</div>
+                                    <div class="param-label">色调</div>
+                                </div>
+                                <div class="param-value" id="brightnessValue">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="stylesTab" style="display: none;">
+                    <div class="preset-styles" id="presetStyles">
+                        <!-- Preset styles will be generated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept="image/*" onchange="handleImageUpload(event)">
+
+    <script>
+        // Global variables
+        let currentPosition = { x: 5, y: 5 };
+        let isDragging = false;
+        let selectedStyle = '标准';
+        let selectedImage = null;
+
+        // Preset photography styles
+        const photographyStyles = [
+            { name: '标准', id: 'standard', x: 5, y: 5 },
+            { name: '丰富对比', id: 'rich', x: 7, y: 3 },
+            { name: '鲜艳暖色', id: 'vivid_warm', x: 8, y: 4 },
+            { name: '鲜艳冷色', id: 'vivid_cool', x: 8, y: 6 },
+            { name: '戏剧暖色', id: 'dramatic_warm', x: 6, y: 2 },
+            { name: '戏剧冷色', id: 'dramatic_cool', x: 6, y: 8 },
+            { name: '静音', id: 'quiet', x: 3, y: 5 },
+            { name: '自然', id: 'natural', x: 4, y: 4 }
+        ];
+
+        // Initialize the app
+        function init() {
+            generateGridDots();
+            generatePresetStyles();
+            updateControlDotPosition();
+            setupEventListeners();
+        }
+
+        // Generate 11x11 grid dots
+        function generateGridDots() {
+            const palette = document.getElementById('colorPalette');
+            for (let y = 0; y <= 10; y++) {
+                for (let x = 0; x <= 10; x++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'grid-dot';
+                    dot.style.left = `${(x / 10) * 100}%`;
+                    dot.style.top = `${(y / 10) * 100}%`;
+                    palette.appendChild(dot);
+                }
+            }
+        }
+
+        // Generate preset styles
+        function generatePresetStyles() {
+            const container = document.getElementById('presetStyles');
+            photographyStyles.forEach(style => {
+                const element = document.createElement('div');
+                element.className = 'preset-style';
+                element.onclick = () => selectPresetStyle(style);
+                element.innerHTML = `
+                    <div class="preset-name">${style.name}</div>
+                    <div class="preset-coords">坐标: (${style.x}, ${style.y})</div>
+                `;
+                if (style.name === '标准') {
+                    element.classList.add('active');
+                }
+                container.appendChild(element);
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            const palette = document.getElementById('colorPalette');
+            const controlDot = document.getElementById('controlDot');
+
+            palette.addEventListener('mousedown', handleMouseDown);
+            controlDot.addEventListener('mousedown', handleMouseDown);
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            
+            // Touch events for mobile
+            palette.addEventListener('touchstart', handleTouchStart, { passive: false });
+            controlDot.addEventListener('touchstart', handleTouchStart, { passive: false });
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd);
+        }
+
+        // Handle image upload
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImage = e.target.result;
+                    document.getElementById('previewImage').src = selectedImage;
+                    document.getElementById('uploadArea').style.display = 'none';
+                    document.getElementById('imageContainer').style.display = 'block';
+                    document.getElementById('controlPanel').style.display = 'flex';
+                    updateImageFilter();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Mouse events
+        function handleMouseDown(event) {
+            event.preventDefault();
+            isDragging = true;
+            updatePosition(event);
+        }
+
+        function handleMouseMove(event) {
+            if (isDragging) {
+                updatePosition(event);
+            }
+        }
+
+        function handleMouseUp() {
+            isDragging = false;
+        }
+
+        // Touch events
+        function handleTouchStart(event) {
+            event.preventDefault();
+            isDragging = true;
+            const touch = event.touches[0];
+            updatePosition(touch);
+        }
+
+        function handleTouchMove(event) {
+            if (isDragging) {
+                event.preventDefault();
+                const touch = event.touches[0];
+                updatePosition(touch);
+            }
+        }
+
+        function handleTouchEnd() {
+            isDragging = false;
+        }
+
+        // Update position based on mouse/touch coordinates
+        function updatePosition(event) {
+            // 添加触觉反馈（仅支持的设备）
+            if (navigator.vibrate && Math.abs(currentPosition.x - Math.round((x / rect.width) * 10)) > 0) {
+                navigator.vibrate(10);
+            }
+            const palette = document.getElementById('colorPalette');
+            const rect = palette.getBoundingClientRect();
+            
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            const gridX = Math.round((x / rect.width) * 10);
+            const gridY = Math.round((y / rect.height) * 10);
+            
+            const clampedX = Math.max(0, Math.min(10, gridX));
+            const clampedY = Math.max(0, Math.min(10, gridY));
+            
+            currentPosition = { x: clampedX, y: clampedY };
+            selectedStyle = '自定义';
+            
+            updateControlDotPosition();
+            updateParameters();
+            updateImageFilter();
+            updateStyleInfo();
+            updateActivePresetStyle();
+        }
+
+        // Update control dot position
+        function updateControlDotPosition() {
+            const controlDot = document.getElementById('controlDot');
+            controlDot.style.left = `${(currentPosition.x / 10) * 100}%`;
+            controlDot.style.top = `${(currentPosition.y / 10) * 100}%`;
+        }
+
+        // Update parameter displays
+        function updateParameters() {
+            const saturation = ((currentPosition.x - 5) / 5) * 60;
+            const brightness = ((5 - currentPosition.y) / 5) * 30;
+            
+            // 添加颜色指示器
+            const satValue = document.getElementById('saturationValue');
+            const brightValue = document.getElementById('brightnessValue');
+            
+            satValue.textContent = `${saturation > 0 ? '+' : ''}${saturation.toFixed(1)}%`;
+            brightValue.textContent = `${brightness > 0 ? '+' : ''}${brightness.toFixed(1)}%`;
+            
+            // 根据数值改变颜色
+            satValue.style.color = saturation > 0 ? '#FF3B30' : saturation < 0 ? '#007AFF' : '#8E8E93';
+            brightValue.style.color = brightness > 0 ? '#FFCC02' : brightness < 0 ? '#5856D6' : '#8E8E93';
+        }
+
+        // Update image filter
+        function updateImageFilter() {
+            if (!selectedImage) return;
+            
+            // 基于HSL色彩空间的专业计算
+            const saturationShift = ((currentPosition.x - 5) / 5) * 60; // -60% to +60%
+            const lightnessShift = ((5 - currentPosition.y) / 5) * 30;  // -30% to +30%
+            const contrastBoost = 1 + (Math.abs(currentPosition.x - 5) / 10) * 0.4; // 1.0 to 1.4
+            const vibranceBoost = 1 + (currentPosition.x / 10) * 0.6; // 1.0 to 1.6
+            
+            // 色相偏移基于位置
+            let hueShift = 0;
+            if (currentPosition.y < 3) hueShift = -15; // 上方偏暖
+            else if (currentPosition.y > 7) hueShift = 15; // 下方偏冷
+            
+            const filterString = [
+                `brightness(${100 + lightnessShift}%)`,
+                `contrast(${contrastBoost * 100}%)`,
+                `saturate(${100 + saturationShift}%)`,
+                `hue-rotate(${hueShift}deg)`,
+                `sepia(${Math.max(0, (currentPosition.x - 3) * 8)}%)`
+            ].join(' ');
+            
+            document.getElementById('previewImage').style.filter = filterString;
+            
+            // 添加实时色彩预览
+            updateColorPreview();
+        }
+
+        // 添加实时色彩预览
+        function updateColorPreview() {
+            const saturation = ((currentPosition.x - 5) / 5) * 60;
+            const lightness = ((5 - currentPosition.y) / 5) * 30;
+            
+            // 计算当前调色板位置的主色调
+            const hue = (currentPosition.x / 10) * 300; // 0-300度色相
+            const previewColor = `hsl(${hue}, ${Math.max(20, 70 + saturation/2)}%, ${Math.max(30, 50 + lightness/2)}%)`;
+            
+            // 更新控制点颜色
+            const controlDot = document.getElementById('controlDot');
+            controlDot.style.background = previewColor;
+            controlDot.style.borderColor = lightness > 0 ? '#000' : '#fff';
+            controlDot.style.boxShadow = `0 4px 12px ${previewColor}40, 0 2px 4px rgba(0, 0, 0, 0.3)`;
+        }
+
+        // Update style info
+        function updateStyleInfo() {
+            const saturation = ((currentPosition.x - 5) * 10);
+            const brightness = ((5 - currentPosition.y) * 10);
+            
+            document.getElementById('styleName').textContent = selectedStyle;
+            document.getElementById('styleParams').textContent = `饱和度: ${saturation.toFixed(0)} | 色调: ${brightness.toFixed(0)}`;
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.getElementById('paletteTab').style.display = tabName === 'palette' ? 'block' : 'none';
+            document.getElementById('stylesTab').style.display = tabName === 'styles' ? 'block' : 'none';
+        }
+
+        // Select preset style
+        function selectPresetStyle(style) {
+            currentPosition = { x: style.x, y: style.y };
+            selectedStyle = style.name;
+            
+            updateControlDotPosition();
+            updateParameters();
+            updateImageFilter();
+            updateStyleInfo();
+            updateActivePresetStyle();
+        }
+
+        // Update active preset style
+        function updateActivePresetStyle() {
+            document.querySelectorAll('.preset-style').forEach(element => {
+                element.classList.remove('active');
+            });
+            
+            const matchingStyle = photographyStyles.find(style => 
+                style.x === currentPosition.x && style.y === currentPosition.y
+            );
+            
+            if (matchingStyle) {
+                const elements = document.querySelectorAll('.preset-style');
+                const index = photographyStyles.indexOf(matchingStyle);
+                if (elements[index]) {
+                    elements[index].classList.add('active');
+                }
+            }
+        }
+
+        // Reset to standard
+        function resetToStandard() {
+            selectPresetStyle(photographyStyles[0]);
+        }
+
+        // Download image (placeholder)
+        function downloadImage() {
+            if (selectedImage) {
+                // Create a temporary canvas to apply filters and download
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    // Apply filters using canvas
+                    const saturation = ((currentPosition.x - 5) / 5) * 100;
+                    const brightness = ((5 - currentPosition.y) / 5) * 50;
+                    const contrast = Math.abs((currentPosition.y - 5) / 5) * 30;
+                    
+                    ctx.filter = `brightness(${100 + brightness}%) contrast(${100 + contrast}%) saturate(${100 + saturation}%)`;
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Download the image
+                    const link = document.createElement('a');
+                    link.download = `edited_photo_${selectedStyle}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                };
+                
+                img.src = selectedImage;
+            }
+        }
+
+        // Initialize the app when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
