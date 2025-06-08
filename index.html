@@ -744,10 +744,6 @@
 
         // Update position based on mouse/touch coordinates
         function updatePosition(event) {
-            // 添加触觉反馈（仅支持的设备）
-            if (navigator.vibrate && Math.abs(currentPosition.x - Math.round((x / rect.width) * 10)) > 0) {
-                navigator.vibrate(10);
-            }
             const palette = document.getElementById('colorPalette');
             const rect = palette.getBoundingClientRect();
             
