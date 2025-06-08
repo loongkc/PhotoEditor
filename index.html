@@ -115,7 +115,6 @@
             border-radius: 16px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 
                         0 10px 20px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
             transition: filter 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
@@ -240,7 +239,8 @@
         .tab-content {
             flex: 1;
             padding: 30px;
-            overflow-y: auto;
+            overflow-y: auto; 
+            max-height: calc(100vh - 80px); /* 减去顶部标签栏和其他可能占用的高度 */
         }
 
         /* Color Palette */
@@ -315,6 +315,13 @@
                         0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
+    
+        .control-dot:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.5),
+                        0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
         .control-dot::before {
             content: '';
             position: absolute;
@@ -326,32 +333,12 @@
             background: transparent;
         }
 
-        @media (max-width: 768px) {
-            .control-dot {
-                width: 32px;
-                height: 32px;
-            }
-            
-            .control-dot::before {
-                top: -20px;
-                left: -20px;
-                right: -20px;
-                bottom: -20px;
-            }
-        }
-
-        .control-dot:hover {
-            transform: translate(-50%, -50%) scale(1.1);
-            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.5),
-                        0 4px 8px rgba(0, 0, 0, 0.4);
-        }
-
         .palette-labels {
             position: absolute;
-            top: 50%;
-            left: -50px;
-            right: -50px;
-            bottom: -20px;
+            top: 0px;
+            left: 15px;
+            right: 15px;
+            bottom: 0px;
             pointer-events: none;
         }
 
@@ -484,15 +471,21 @@
                 flex-direction: column;
             }
             
+            .tab-content {
+                max-height: 80vh; /* 占据 80% 的视口高度 */
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch; /* 提升移动端滚动体验 */
+            }
+
             .control-panel {
                 width: 100%;
-                height: 55vh;
+                height: 45vh;
                 padding-top: 0;
                 border-radius: 20px 20px 0 0; /* 圆角顶部 */
             }
             
             .main-content {
-                padding: 80px 15px 15px;
+                padding: 80px 20px 20px;
             }
 
             .preview-image {
@@ -501,8 +494,20 @@
             }
             
             .palette-wrapper {
-                width: 260px; /* 稍微增大调色盘 */
+                width: 260px;
                 height: 260px;
+            }
+
+            .control-dot {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .control-dot::before {
+                top: -20px;
+                left: -20px;
+                right: -20px;
+                bottom: -20px;
             }
         }
 
@@ -510,6 +515,92 @@
         #fileInput {
             display: none;
         }
+
+        .advanced-controls {
+            background: rgba(120, 120, 128, 0.12);
+            border-radius: 16px;
+            padding: 20px;
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .control-group {
+            width: 100%;
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .toggle-btn {
+            background: rgba(0, 122, 255, 0.2);
+            border: 1px solid #007AFF;
+            border-radius: 8px;
+            color: #007AFF;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(0, 122, 255, 0.3);
+        }
+
+        .advanced-sliders {
+            display: grid;
+            gap: 16px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider-group label {
+            min-width: 60px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .slider-group input[type="range"] {
+            flex: 1;
+            height: 4px;
+            background: rgba(120, 120, 128, 0.3);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #007AFF;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 122, 255, 0.4);
+        }
+
+        .slider-group span {
+            min-width: 40px;
+            font-size: 12px;
+            color: #007AFF;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
     </style>
 </head>
 <body>
@@ -521,6 +612,9 @@
                 <div class="header-title">摄影风格</div>
             </div>
             <div class="header-right">
+                <button class="btn" onclick="autoAdjust()" title="智能调整">
+                    ✨
+                </button>
                 <button class="btn" onclick="resetToStandard()" title="重置">
                     ↻
                 </button>
@@ -574,10 +668,10 @@
                             <div class="control-dot" id="controlDot"></div>
                             
                             <div class="palette-labels">
-                                <div class="label-left">明亮</div>
-                                <div class="label-right">暗淡</div>
-                                <div class="label-top">低饱和度</div>
-                                <div class="label-bottom">高饱和度</div>
+                                <div class="label-left">低饱和度</div>
+                                <div class="label-right">高饱和度</div>
+                                <div class="label-top">明亮</div>
+                                <div class="label-bottom">暗淡</div>
                             </div>
                         </div>
 
@@ -597,6 +691,38 @@
                                 <div class="param-value" id="brightnessValue">0%</div>
                             </div>
                         </div>
+                        
+                            <div class="advanced-controls" style="margin-top: 24px;">
+                                <div class="control-group">
+                                    <div class="control-header">
+                                        <span>⚡ 高级调整</span>
+                                        <button class="toggle-btn" onclick="toggleAdvanced()">展开</button>
+                                    </div>
+                                    <div class="advanced-sliders" id="advancedSliders" style="display: none;">
+                                        <div class="slider-group">
+                                            <label>对比度</label>
+                                            <input type="range" id="contrastSlider" min="-50" max="50" value="0" oninput="updateAdvancedFilter()">
+                                            <span id="contrastValue">0%</span>
+                                        </div>
+                                        <div class="slider-group">
+                                            <label>阴影</label>
+                                            <input type="range" id="shadowSlider" min="-50" max="50" value="0" oninput="updateAdvancedFilter()">
+                                            <span id="shadowValue">0%</span>
+                                        </div>
+                                        <div class="slider-group">
+                                            <label>高光</label>
+                                            <input type="range" id="highlightSlider" min="-50" max="50" value="0" oninput="updateAdvancedFilter()">
+                                            <span id="highlightValue">0%</span>
+                                        </div>
+                                        <div class="slider-group">
+                                            <label>清晰度</label>
+                                            <input type="range" id="sharpnessSlider" min="-30" max="30" value="0" oninput="updateAdvancedFilter()">
+                                            <span id="sharpnessValue">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                     </div>
                 </div>
 
@@ -618,16 +744,57 @@
         let selectedStyle = '标准';
         let selectedImage = null;
 
+        let advancedSettings = {
+            contrast: 0,
+            shadows: 0,
+            highlights: 0,
+            sharpness: 0
+        };
+
+        function toggleAdvanced() {
+            const sliders = document.getElementById('advancedSliders');
+            const btn = document.querySelector('.toggle-btn');
+            
+            if (sliders.style.display === 'none') {
+                sliders.style.display = 'grid';
+                btn.textContent = '收起';
+            } else {
+                sliders.style.display = 'none';
+                btn.textContent = '展开';
+            }
+        }
+
+        function updateAdvancedFilter() {
+            // 更新高级设置值
+            advancedSettings.contrast = parseInt(document.getElementById('contrastSlider').value);
+            advancedSettings.shadows = parseInt(document.getElementById('shadowSlider').value);
+            advancedSettings.highlights = parseInt(document.getElementById('highlightSlider').value);
+            advancedSettings.sharpness = parseInt(document.getElementById('sharpnessSlider').value);
+            
+            // 更新显示值
+            document.getElementById('contrastValue').textContent = `${advancedSettings.contrast}%`;
+            document.getElementById('shadowValue').textContent = `${advancedSettings.shadows}%`;
+            document.getElementById('highlightValue').textContent = `${advancedSettings.highlights}%`;
+            document.getElementById('sharpnessValue').textContent = `${advancedSettings.sharpness}%`;
+            
+            // 重新应用滤镜
+            updateImageFilter();
+        }
+
         // Preset photography styles
         const photographyStyles = [
-            { name: '标准', id: 'standard', x: 5, y: 5 },
-            { name: '丰富对比', id: 'rich', x: 7, y: 3 },
-            { name: '鲜艳暖色', id: 'vivid_warm', x: 8, y: 4 },
-            { name: '鲜艳冷色', id: 'vivid_cool', x: 8, y: 6 },
-            { name: '戏剧暖色', id: 'dramatic_warm', x: 6, y: 2 },
-            { name: '戏剧冷色', id: 'dramatic_cool', x: 6, y: 8 },
-            { name: '静音', id: 'quiet', x: 3, y: 5 },
-            { name: '自然', id: 'natural', x: 4, y: 4 }
+            { name: '标准', id: 'standard', x: 5, y: 5, contrast: 0, shadows: 0, highlights: 0 },
+            { name: '丰富对比', id: 'rich', x: 7, y: 3, contrast: 25, shadows: -10, highlights: -5 },
+            { name: '鲜艳暖色', id: 'vivid_warm', x: 8, y: 4, contrast: 15, shadows: 5, highlights: 10 },
+            { name: '鲜艳冷色', id: 'vivid_cool', x: 8, y: 6, contrast: 15, shadows: -5, highlights: 5 },
+            { name: '戏剧暖色', id: 'dramatic_warm', x: 6, y: 2, contrast: 35, shadows: -20, highlights: 15 },
+            { name: '戏剧冷色', id: 'dramatic_cool', x: 6, y: 8, contrast: 35, shadows: -15, highlights: -10 },
+            { name: '静音', id: 'quiet', x: 3, y: 5, contrast: -10, shadows: 10, highlights: 5 },
+            { name: '自然', id: 'natural', x: 4, y: 4, contrast: 5, shadows: 0, highlights: 0 },
+            { name: '电影胶片', id: 'cinematic', x: 4, y: 6, contrast: 20, shadows: -5, highlights: -15 },
+            { name: '复古', id: 'vintage', x: 6, y: 7, contrast: -5, shadows: 15, highlights: 10 },
+            { name: '黑白经典', id: 'bw_classic', x: 2, y: 5, contrast: 30, shadows: -10, highlights: 5 },
+            { name: '柔和人像', id: 'soft_portrait', x: 4, y: 3, contrast: -15, shadows: 20, highlights: 15 }
         ];
 
         // Initialize the app
@@ -651,6 +818,21 @@
                 }
             }
         }
+
+        function adjustTabContentHeight() {
+            const tabContent = document.querySelector('.tab-content');
+            if (window.innerWidth <= 768) {
+                // 减去 header、tabs 等占用的高度
+                const availableHeight = window.innerHeight - 80; // 假设 tabs + header 占用 80px
+                tabContent.style.maxHeight = `${availableHeight}px`;
+            } else {
+                tabContent.style.maxHeight = '';
+            }
+        }
+
+        // 页面加载后和窗口大小变化时更新高度
+        window.addEventListener('DOMContentLoaded', adjustTabContentHeight);
+        window.addEventListener('resize', adjustTabContentHeight);
 
         // Generate preset styles
         function generatePresetStyles() {
@@ -775,51 +957,48 @@
 
         // Update parameter displays
         function updateParameters() {
-            const saturation = ((currentPosition.x - 5) / 5) * 60;
-            const brightness = ((5 - currentPosition.y) / 5) * 30;
+            const saturation = ((currentPosition.x - 5) * 10);
+            const brightness = ((5 - currentPosition.y) * 10);
             
-            // 添加颜色指示器
-            const satValue = document.getElementById('saturationValue');
-            const brightValue = document.getElementById('brightnessValue');
-            
-            satValue.textContent = `${saturation > 0 ? '+' : ''}${saturation.toFixed(1)}%`;
-            brightValue.textContent = `${brightness > 0 ? '+' : ''}${brightness.toFixed(1)}%`;
-            
-            // 根据数值改变颜色
-            satValue.style.color = saturation > 0 ? '#FF3B30' : saturation < 0 ? '#007AFF' : '#8E8E93';
-            brightValue.style.color = brightness > 0 ? '#FFCC02' : brightness < 0 ? '#5856D6' : '#8E8E93';
+            document.getElementById('saturationValue').textContent = `${saturation.toFixed(0)}%`;
+            document.getElementById('brightnessValue').textContent = `${brightness.toFixed(0)}%`;
         }
 
         // Update image filter
         function updateImageFilter() {
             if (!selectedImage) return;
             
-            // 基于HSL色彩空间的专业计算
-            const saturationShift = ((currentPosition.x - 5) / 5) * 60; // -60% to +60%
-            const lightnessShift = ((5 - currentPosition.y) / 5) * 30;  // -30% to +30%
-            const contrastBoost = 1 + (Math.abs(currentPosition.x - 5) / 10) * 0.4; // 1.0 to 1.4
-            const vibranceBoost = 1 + (currentPosition.x / 10) * 0.6; // 1.0 to 1.6
+            // 基础调色盘设置
+            const saturationShift = ((currentPosition.x - 5) / 5) * 60;
+            const lightnessShift = ((5 - currentPosition.y) / 5) * 30;
+            const contrastBoost = 1 + (Math.abs(currentPosition.x - 5) / 10) * 0.4;
             
-            // 色相偏移基于位置
+            // 高级设置
+            const finalContrast = contrastBoost * 100 + advancedSettings.contrast;
+            const finalBrightness = 100 + lightnessShift + (advancedSettings.highlights - advancedSettings.shadows) * 0.3;
+            const shadowAdjust = Math.max(0.5, 1 + advancedSettings.shadows / 100);
+            const sharpness = 1 + Math.abs(advancedSettings.sharpness) / 100;
+            
+            // 色相偏移
             let hueShift = 0;
-            if (currentPosition.y < 3) hueShift = -15; // 上方偏暖
-            else if (currentPosition.y > 7) hueShift = 15; // 下方偏冷
+            if (currentPosition.y < 3) hueShift = -15;
+            else if (currentPosition.y > 7) hueShift = 15;
             
+            // 构建复合滤镜
             const filterString = [
-                `brightness(${100 + lightnessShift}%)`,
-                `contrast(${contrastBoost * 100}%)`,
+                `brightness(${finalBrightness}%)`,
+                `contrast(${finalContrast}%)`,
                 `saturate(${100 + saturationShift}%)`,
                 `hue-rotate(${hueShift}deg)`,
-                `sepia(${Math.max(0, (currentPosition.x - 3) * 8)}%)`
-            ].join(' ');
+                `sepia(${Math.max(0, (currentPosition.x - 3) * 8)}%)`,
+                advancedSettings.sharpness !== 0 ? `blur(${Math.max(0, -advancedSettings.sharpness / 30)}px)` : '',
+                shadowAdjust !== 1 ? `opacity(${shadowAdjust})` : ''
+            ].filter(f => f).join(' ');
             
             document.getElementById('previewImage').style.filter = filterString;
-            
-            // 添加实时色彩预览
             updateColorPreview();
         }
 
-        // 添加实时色彩预览
         function updateColorPreview() {
             const saturation = ((currentPosition.x - 5) / 5) * 60;
             const lightness = ((5 - currentPosition.y) / 5) * 30;
@@ -860,6 +1039,20 @@
             currentPosition = { x: style.x, y: style.y };
             selectedStyle = style.name;
             
+            // 应用高级设置
+            if (style.contrast !== undefined) {
+                advancedSettings.contrast = style.contrast;
+                advancedSettings.shadows = style.shadows;
+                advancedSettings.highlights = style.highlights;
+                
+                // 更新滑块位置
+                document.getElementById('contrastSlider').value = style.contrast;
+                document.getElementById('shadowSlider').value = style.shadows;
+                document.getElementById('highlightSlider').value = style.highlights;
+                
+                updateAdvancedFilter();
+            }
+            
             updateControlDotPosition();
             updateParameters();
             updateImageFilter();
@@ -884,6 +1077,32 @@
                     elements[index].classList.add('active');
                 }
             }
+        }
+
+        function autoAdjust() {
+            if (!selectedImage) return;
+            
+            // 模拟智能调整算法
+            const randomFactor = Math.random();
+            
+            if (randomFactor < 0.3) {
+                // 增强对比度风格
+                selectPresetStyle(photographyStyles.find(s => s.id === 'rich'));
+            } else if (randomFactor < 0.6) {
+                // 自然风格
+                selectPresetStyle(photographyStyles.find(s => s.id === 'natural'));
+            } else {
+                // 鲜艳风格
+                const warmOrCool = Math.random() > 0.5 ? 'vivid_warm' : 'vivid_cool';
+                selectPresetStyle(photographyStyles.find(s => s.id === warmOrCool));
+            }
+            
+            // 添加提示动画
+            const btn = event.target;
+            btn.style.transform = 'rotate(360deg) scale(1.1)';
+            setTimeout(() => {
+                btn.style.transform = '';
+            }, 300);
         }
 
         // Reset to standard
